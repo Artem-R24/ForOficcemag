@@ -13,7 +13,7 @@
                   </label></p>
             <p><input type="submit" /></p>
         </form>
-    </body>
+    
 <?php
 
 if(isset($_POST["val"]) and $_POST["val2"])
@@ -70,4 +70,81 @@ function PrefixFunction(string $str) : array
     return $p;
 }
 ?>
+        <form method="post">
+            <p>Введите ключ по которому будет отсортирован массив: <label>
+              <input type="text" name="key" />
+                  </label></p>
+            <p><input type="submit" /></p>
+        </form>
+<?php
+
+$matrix = array();
+    
+    for($i=0; $i<10; $i++)
+    {    
+        $row=array();
+        for($j='a'; $j<'f'; $j++)
+        {
+            $row[$j]=rand(0,100);
+        }
+        $matrix[] = $row;
+    }
+    print_r($matrix);
+
+
+echo "<br /><br /><br /><br />";
+
+if(isset($_POST["key"]))
+{
+    try{
+    mySortForKey($matrix, $_POST["key"]);
+    print_r($matrix);
+    }
+    catch(Exception $e)
+    {
+        echo $e->getMessage();
+    }
+}
+#Используется сортировка алгоритмом Шелла
+function mySortForKey(array &$a, mixed $b)
+{
+    $sort_length = count($a) - 1;
+	$step = intval(ceil(($sort_length + 1)/2));
+
+	do{
+		$i = ceil($step);
+	   do
+	   {
+	     $j=$i-$step;
+	     $c=1.0;
+             if (!isset($a[$j][$b]))
+                 throw new Exception ("Данного ключа не существует в массиве под номером ". $j);
+             do
+	     { 
+                   if($a[$j][$b]<=$a[$j+$step][$b])
+	            {
+		  	$c=0.0;
+	            }
+	       else
+		   {
+		      $tmp=$a[$j];
+		      $a[$j]=$a[$j+$step];
+		      $a[$j+$step]=$tmp;
+		   }
+		$j=$j-1;
+               
+	     }
+	     while($j>=0 && ($c==1));
+	      $i = $i+1;
+	    }
+	    while($i<=$sort_length);
+
+		// конец цикла
+		$step = intval($step / 2);
+	}
+	while($step > 0);
+}
+?>
+        
+     </body>
 </html>
