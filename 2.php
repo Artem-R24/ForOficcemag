@@ -7,7 +7,7 @@
             <p>Введите текст: <label>
               <input type="text" name="val" />
                   </label></p>
-            <p><input type="submit" /></p>
+            
             <p>Введите паттерн: <label>
               <input type="text" name="val2" />
                   </label></p>
@@ -78,7 +78,9 @@ function PrefixFunction(string $str) : array
         </form>
 <?php
 
-$matrix = array();
+if(isset($_POST["key"]))
+{
+    $matrix = array();
     
     for($i=0; $i<10; $i++)
     {    
@@ -92,10 +94,7 @@ $matrix = array();
     print_r($matrix);
 
 
-echo "<br /><br /><br /><br />";
-
-if(isset($_POST["key"]))
-{
+echo "Массив сгенерирован случайным образом<br /><br /><br /><br />";
     try{
     mySortForKey($matrix, $_POST["key"]);
     print_r($matrix);
@@ -167,6 +166,7 @@ $result = mysqli_query($conn, $sql);
 while ($row = mysqli_fetch_row($result)) {
     $tables[] = $row[0];
 }
+
 ?>
         
      </body>
