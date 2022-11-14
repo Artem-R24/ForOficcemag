@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: localhost
--- Время создания: Окт 31 2022 г., 21:35
+-- Время создания: Ноя 14 2022 г., 21:56
 -- Версия сервера: 8.0.30
 -- Версия PHP: 8.1.10
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- База данных: `test_samson`
 --
+CREATE DATABASE IF NOT EXISTS `test_samson` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `test_samson`;
 
 -- --------------------------------------------------------
 
@@ -51,15 +53,16 @@ INSERT INTO `a_category` (`Id`, `Code`, `Name`, `Id_parent`) VALUES
 CREATE TABLE `a_price` (
   `Id` int NOT NULL,
   `Type` varchar(30) DEFAULT NULL,
-  `Price` int DEFAULT NULL
+  `Price` int DEFAULT NULL,
+  `Id_prod` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Дамп данных таблицы `a_price`
 --
 
-INSERT INTO `a_price` (`Id`, `Type`, `Price`) VALUES
-(1, 'type1', 3000);
+INSERT INTO `a_price` (`Id`, `Type`, `Price`, `Id_prod`) VALUES
+(1, 'type1', 3000, 1);
 
 -- --------------------------------------------------------
 
@@ -70,17 +73,16 @@ INSERT INTO `a_price` (`Id`, `Type`, `Price`) VALUES
 CREATE TABLE `a_product` (
   `Id` int NOT NULL,
   `Code` varchar(30) DEFAULT NULL,
-  `Name` varchar(30) DEFAULT NULL,
-  `Id_prop` int DEFAULT NULL
+  `Name` varchar(30) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Дамп данных таблицы `a_product`
 --
 
-INSERT INTO `a_product` (`Id`, `Code`, `Name`, `Id_prop`) VALUES
-(1, 'code1', 'name1', 1),
-(2, 'code2', 'name2', 2);
+INSERT INTO `a_product` (`Id`, `Code`, `Name`) VALUES
+(1, 'code1', 'name1'),
+(2, 'code2', 'name2');
 
 -- --------------------------------------------------------
 
@@ -90,17 +92,19 @@ INSERT INTO `a_product` (`Id`, `Code`, `Name`, `Id_prop`) VALUES
 
 CREATE TABLE `a_property` (
   `Id` int NOT NULL,
-  `Property` varchar(30) DEFAULT NULL
+  `Property` varchar(30) DEFAULT NULL,
+  `Value` float DEFAULT NULL,
+  `Id_prod` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Дамп данных таблицы `a_property`
 --
 
-INSERT INTO `a_property` (`Id`, `Property`) VALUES
-(1, 'prop1'),
-(2, 'prop2'),
-(3, 'prop3');
+INSERT INTO `a_property` (`Id`, `Property`, `Value`, `Id_prod`) VALUES
+(1, 'prop1', 10, 1),
+(2, 'prop2', 20.5, 1),
+(3, 'prop3', 11, 2);
 
 -- --------------------------------------------------------
 
@@ -110,16 +114,20 @@ INSERT INTO `a_property` (`Id`, `Property`) VALUES
 
 CREATE TABLE `product_category` (
   `Id_prod` int NOT NULL,
-  `Id_cat` int NOT NULL
+  `Id_category` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Дамп данных таблицы `product_category`
 --
 
-INSERT INTO `product_category` (`Id_prod`, `Id_cat`) VALUES
+INSERT INTO `product_category` (`Id_prod`, `Id_category`) VALUES
+(1, 1),
 (1, 2),
-(1, 2);
+(1, 1),
+(1, 2),
+(2, 2),
+(2, 2);
 
 --
 -- Индексы сохранённых таблиц
@@ -136,29 +144,30 @@ ALTER TABLE `a_category`
 -- Индексы таблицы `a_price`
 --
 ALTER TABLE `a_price`
-  ADD PRIMARY KEY (`Id`);
+  ADD PRIMARY KEY (`Id`),
+  ADD KEY `Id_prod` (`Id_prod`);
 
 --
 -- Индексы таблицы `a_product`
 --
 ALTER TABLE `a_product`
   ADD PRIMARY KEY (`Id`),
-  ADD KEY `Id` (`Id`),
-  ADD KEY `Id_prop` (`Id_prop`);
+  ADD KEY `Id` (`Id`);
 
 --
 -- Индексы таблицы `a_property`
 --
 ALTER TABLE `a_property`
   ADD PRIMARY KEY (`Id`),
-  ADD KEY `Id` (`Id`);
+  ADD KEY `Id` (`Id`),
+  ADD KEY `Id_prod` (`Id_prod`);
 
 --
 -- Индексы таблицы `product_category`
 --
 ALTER TABLE `product_category`
-  ADD KEY `Id_cat` (`Id_cat`),
-  ADD KEY `Id_prod` (`Id_prod`);
+  ADD KEY `Id_prod` (`Id_prod`),
+  ADD KEY `Id_category` (`Id_category`);
 
 --
 -- AUTO_INCREMENT для сохранённых таблиц
@@ -196,20 +205,20 @@ ALTER TABLE `a_category`
 -- Ограничения внешнего ключа таблицы `a_price`
 --
 ALTER TABLE `a_price`
-  ADD CONSTRAINT `a_price_ibfk_1` FOREIGN KEY (`Id`) REFERENCES `a_product` (`Id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `a_price_ibfk_1` FOREIGN KEY (`Id_prod`) REFERENCES `a_product` (`Id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
--- Ограничения внешнего ключа таблицы `a_product`
+-- Ограничения внешнего ключа таблицы `a_property`
 --
-ALTER TABLE `a_product`
-  ADD CONSTRAINT `a_product_ibfk_1` FOREIGN KEY (`Id_prop`) REFERENCES `a_property` (`Id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `a_property`
+  ADD CONSTRAINT `a_property_ibfk_1` FOREIGN KEY (`Id_prod`) REFERENCES `a_product` (`Id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
 -- Ограничения внешнего ключа таблицы `product_category`
 --
 ALTER TABLE `product_category`
-  ADD CONSTRAINT `product_category_ibfk_1` FOREIGN KEY (`Id_cat`) REFERENCES `a_category` (`Id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  ADD CONSTRAINT `product_category_ibfk_2` FOREIGN KEY (`Id_prod`) REFERENCES `a_product` (`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+  ADD CONSTRAINT `product_category_ibfk_1` FOREIGN KEY (`Id_prod`) REFERENCES `a_product` (`Id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `product_category_ibfk_2` FOREIGN KEY (`Id_category`) REFERENCES `a_category` (`Id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
