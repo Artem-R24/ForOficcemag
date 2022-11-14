@@ -147,8 +147,8 @@ function mySortForKey(array &$a, mixed $b)
 ?>
         
 <?php
-
 exportXML('exemel.xml', 1);
+//importXML('');
 
 function exportXML(string $a,int $b)
 {
@@ -172,8 +172,8 @@ $products = $doc->createElement('Products');
   
 foreach($q1 as $row) 
    {  
-    echo $row['Name'];
-    echo $row['Code'];
+//    echo $row['Name'];
+//    echo $row['Code'];
     
     $product=$doc->createElement('Product');
     $product->setAttribute('Name', $row['Name']);
@@ -216,8 +216,8 @@ $doc->appendChild($products);
 
 // Set the appropriate content-type header and output the XML
 //header('Content-type: application/xml');
-var_dump($doc->saveXML());
-$doc->saveXML();
+//var_dump($doc->saveXML());
+$doc->save($a);
 
 echo 'Success export';
     
@@ -234,6 +234,18 @@ $username = "root";
 $password = "";
 $database_name = "test_samson";
 
+try
+{
+    $dbh=new PDO("mysql:host=$host;dbname=$database_name", $username, $password);
+    $dbh->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );  
+    $xml=simplexml_load_file('test.xml');
+    /*
+     * Здесь мне нужна помощь
+     */
+    
+} catch (PDOException $ex) {
+  echo $ex->getMessage();
+}
 }
 ?>
         
