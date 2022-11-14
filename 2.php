@@ -16,6 +16,7 @@
     
 <?php
 
+
 if(isset($_POST["val"]) and $_POST["val2"])
     echo ConvertString($_POST["val"],$_POST["val2"]);
     #echo var_export(KnuthMorrisPrattSearch($_POST["val"],"abc"));
@@ -147,26 +148,93 @@ function mySortForKey(array &$a, mixed $b)
         
 <?php
 
+exportXML('exemel.xml', 1);
+
+function exportXML(string $a,int $b)
+{
 // Database configuration
 $host = "localhost";
 $username = "root";
 $password = "";
 $database_name = "test_samson";
 
-// Get connection object and set the charset
-$conn = mysqli_connect($host, $username, $password, $database_name);
-$conn->set_charset("utf8");
+try{
+    $dbh=new PDO("mysql:host=$host;dbname=$database_name", $username, $password);
+    $dbh->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );  
+    //$q1=$dbh->exec('SELECT * FROM a_product');
+    $q1 = $dbh->prepare('SELECT * FROM a_product INNER JOIN product_category ON a_product.Id=product_category.Id_prod AND product_category.Id_category=?;');  
+    $q1->execute([$b]);
+  
+$q1->setFetchMode(PDO::FETCH_ASSOC);  
 
+$doc = new DOMDocument('1.0', 'UTF-8');
+$products = $doc->createElement('Products');
+  
+foreach($q1 as $row) 
+   {  
+    echo $row['Name'];
+    echo $row['Code'];
+    
+    $product=$doc->createElement('Product');
+    $product->setAttribute('Name', $row['Name']);
+    $product->setAttribute('Code', $row['Code']);
+    $q2 = $dbh->prepare('SELECT Type,Price FROM a_price INNER JOIN a_product ON a_product.Id=a_price.Id_prod AND a_product.Id=?;');  
+    $q2->execute([$row['Id']]);
+    $q2->setFetchMode(PDO::FETCH_ASSOC);  
+    foreach ($q2 as $row2)
+    {
+        $price=$doc->createElement('Price',$row2['Price']);
+        $price->setAttribute('Type', $row2['Type']);
+        $product->appendChild($price);
+    }
+    $props=$doc->createElement('Properties');
+    $q2 = $dbh->prepare('SELECT Property,Value FROM a_property INNER JOIN a_product ON a_product.Id=a_property.Id_prod AND a_product.Id=?;');  
+    $q2->execute([$row['Id']]);
+    foreach ($q2 as $row2)
+    {
+        $prop=$doc->createElement($row2['Property'],$row2['Value']);
+        $props->appendChild($prop);
+    }
+    $product->appendChild($props);
+    
+    $q2 = $dbh->prepare('SELECT * FROM a_category INNER JOIN product_category ON a_category.Id=product_category.Id_category AND product_category.Id_prod=?;');  
+    $q2->execute([$row['Id']]);
+    $q2->setFetchMode(PDO::FETCH_ASSOC);  
+    $cats=$doc->createElement('Categories');
+    foreach ($q2 as $row2)
+    {
+        $cat=$doc->createElement('Category',$row2['Name']);
+        $cats->appendChild($cat);
+    }
+    $product->appendChild($cats);
+    
+    $products->appendChild($product);
+    
+    
+    }
+$doc->appendChild($products);
 
-// Get All Table Names From the Database
-$tables = array();
-$sql = "SHOW TABLES";
-$result = mysqli_query($conn, $sql);
+// Set the appropriate content-type header and output the XML
+//header('Content-type: application/xml');
+var_dump($doc->saveXML());
+$doc->saveXML();
 
-while ($row = mysqli_fetch_row($result)) {
-    $tables[] = $row[0];
+echo 'Success export';
+    
+} catch (PDOException $ex) {
+  echo $ex->getMessage();
+}
 }
 
+function importXML(string $a)
+{
+    // Database configuration
+$host = "localhost";
+$username = "root";
+$password = "";
+$database_name = "test_samson";
+
+}
 ?>
         
      </body>
