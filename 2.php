@@ -147,8 +147,9 @@ function mySortForKey(array &$a, mixed $b)
 ?>
         
 <?php
-exportXML('exemel.xml', 1);
-//importXML('');
+//exportXML('exemel.xml', 1);
+importXML('a');
+
 
 function exportXML(string $a,int $b)
 {
@@ -238,11 +239,38 @@ try
 {
     $dbh=new PDO("mysql:host=$host;dbname=$database_name", $username, $password);
     $dbh->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );  
-    $xml=simplexml_load_file('test.xml');
-    /*
-     * Здесь мне нужна помощь
-     */
+    $xml=simplexml_load_file($a);
+//    echo $xml->Product[0]->Categories->Category[0]. "<br>";
+//    echo $xml->Product[0]->Properties->children(). "<br>";
+//    var_dump($xml);
+    for($i=0;$i<count($xml->Product);$i++)
+    {
+        $p_name=$xml->Product[$i]->attributes()[0];
+        $p_code=$xml->Product[$i]->attributes()[1];
+        $query=$dbh->prepare("INSERT INTO a_product (Code,Name) VALUES (?,?)");
+        $query->execute([$p_code,$p_name]);
+        for($j=0;$j<count($xml->Product[$i]->Price);$j++)
+        {
+            $pr_type=$xml->Product[$i]->Price[$j]->attributes();
+            $pr_val=$xml->Product[$i]->Price[$j];
+            $query=$dbh->prepare("INSERT INTO a_price (Type,Price) VALUES (?,?)");
+            $query->execute([$pr_type,$pr_val]);
+        }
+        foreach($xml->Product[$i]->Properties->children() as $k=>$v)
+        {
+            $prop=$k;
+            $val=$v;
+            $query=$dbh->prepare("INSERT INTO a_property (Property,Value) VALUES (?,?)");
+            $query->execute([$prop,$val]);
+        }
+        for($j=0;$j<count($xml->Product[$i]->Categories->Category);$j++)
+        {
+            $query=$dbh->prepare("INSERT INTO a_category (Name) VALUES (?)");
+            $query->execute([$xml->Product[$i]->Categories->Category[$j]]);
+        }
+    }
     
+    echo '  Success import';
 } catch (PDOException $ex) {
   echo $ex->getMessage();
 }
