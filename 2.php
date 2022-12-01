@@ -17,59 +17,76 @@
 <?php
 
 
-if(isset($_POST["val"]) and $_POST["val2"])
+if(isset($_POST["val"]) and isset($_POST["val2"]))
     echo ConvertString($_POST["val"],$_POST["val2"]);
-    #echo var_export(KnuthMorrisPrattSearch($_POST["val"],"abc"));
 
-
+    
 function ConvertString(string $text, string $pattern)
 {
     $str=$text;
-    $substrs= KnuthMorrisPrattSearch($text, $pattern);
-    if(count($substrs)>=3)
+    $lastPos = 0;
+    $positions = array();
+
+    while (($lastPos = strpos($text, $pattern, $lastPos))!== false) {
+      $positions[] = $lastPos;
+      $lastPos = $lastPos + strlen($pattern);
+    }
+    if(count($positions)>2)
     {
         $inverted = strrev($pattern);
-        $str= substr_replace($str, $inverted, $substrs[1],strlen($inverted));
-        #for($i=0;$i<strlen($inverted);$i++)
-        #{
-        #    $str[$i+$substrs[1]]=$inverted[$i];
-        #}
+        $str= substr_replace($str, $inverted, $positions[1],strlen($inverted));
     }
     return $str;
 }
-#Алгоритм поиска подстроки
-function KnuthMorrisPrattSearch(string $text, string $pattern) : array
-{
-    $res=array();
-    $n=strlen($text);
-    $m=strlen($pattern);
-    $i=$j=0;
-    $pf= PrefixFunction($pattern.'#'.$text);
-    for($i=0;$i<$n;$i++)
-    {
-        if($pf[$m+1+$i]==$m)
-            $res[]=$i-$m+1;
-    }
-    return $res;
-}
-#Префикс-функция (см. алгоритм Кнутта-Мориса-Пратта)
-function PrefixFunction(string $str) : array
-{
-    $p=array();
-    $p[]=0;
-    $k;
-    for($i=1;$i<strlen($str);$i++)
-    {
-        $k=$p[$i-1];
-        while($k>0 and $str[$i]!=$str[$k])
-            $k=$p[$k-1];
-        if($str[$i]==$str[$k])
-            ++$k;
-        $p[]=$k;
-            
-    }
-    return $p;
-}
+
+//function ConvertString(string $text, string $pattern)
+//{
+//    $str=$text;
+//    $substrs= KnuthMorrisPrattSearch($text, $pattern);
+//    if(count($substrs)>=3)
+//    {
+//        $inverted = strrev($pattern);
+//        $str= substr_replace($str, $inverted, $substrs[1],strlen($inverted));
+//        #for($i=0;$i<strlen($inverted);$i++)
+//        #{
+//        #    $str[$i+$substrs[1]]=$inverted[$i];
+//        #}
+//    }
+//    return $str;
+//}
+//#Алгоритм поиска подстроки
+//function KnuthMorrisPrattSearch(string $text, string $pattern) : array
+//{
+//    $res=array();
+//    $n=strlen($text);
+//    $m=strlen($pattern);
+//    $i=$j=0;
+//    $pf= PrefixFunction($pattern.'#'.$text);
+//    for($i=0;$i<$n;$i++)
+//    {
+//        if($pf[$m+1+$i]==$m)
+//            $res[]=$i-$m+1;
+//    }
+//    return $res;
+//}
+//#Префикс-функция (см. алгоритм Кнутта-Мориса-Пратта)
+//function PrefixFunction(string $str) : array
+//{
+//    $p=array();
+//    $p[]=0;
+//    $k;
+//    for($i=1;$i<strlen($str);$i++)
+//    {
+//        $k=$p[$i-1];
+//        while($k>0 and $str[$i]!=$str[$k])
+//            $k=$p[$k-1];
+//        if($str[$i]==$str[$k])
+//            ++$k;
+//        $p[]=$k;
+//            
+//    }
+//    return $p;
+//}
 ?>
         <form method="post">
             <p>Введите ключ по которому будет отсортирован массив: <label>
@@ -97,8 +114,8 @@ if(isset($_POST["key"]))
 
 echo "Массив сгенерирован случайным образом<br /><br /><br /><br />";
     try{
-    mySortForKey($matrix, $_POST["key"]);
-    print_r($matrix);
+    //mySortForKey($matrix, $_POST["key"]);
+    print_r(mySortForKey($matrix, $_POST["key"]));
     }
     catch(Exception $e)
     {
@@ -106,9 +123,10 @@ echo "Массив сгенерирован случайным образом<br
     }
 }
 #Используется сортировка алгоритмом Шелла
-function mySortForKey(array &$a, mixed $b)
+function mySortForKey(array &$a, mixed $b):array
 {
-    $sort_length = count($a) - 1;
+    $aa=$a;
+    $sort_length = count($aa) - 1;
 	$step = intval(ceil(($sort_length + 1)/2));
 
 	do{
@@ -117,19 +135,19 @@ function mySortForKey(array &$a, mixed $b)
 	   {
 	     $j=$i-$step;
 	     $c=1.0;
-             if (!isset($a[$j][$b]))
+             if (!isset($aa[$j][$b]))
                  throw new Exception ("Данного ключа не существует в массиве под номером ". $j);
              do
 	     { 
-                   if($a[$j][$b]<=$a[$j+$step][$b])
+                   if($aa[$j][$b]<=$aa[$j+$step][$b])
 	            {
 		  	$c=0.0;
 	            }
 	       else
 		   {
-		      $tmp=$a[$j];
-		      $a[$j]=$a[$j+$step];
-		      $a[$j+$step]=$tmp;
+		      $tmp=$aa[$j];
+		      $aa[$j]=$aa[$j+$step];
+		      $aa[$j+$step]=$tmp;
 		   }
 		$j=$j-1;
                
@@ -143,12 +161,13 @@ function mySortForKey(array &$a, mixed $b)
 		$step = intval($step / 2);
 	}
 	while($step > 0);
+    return $aa;    
 }
 ?>
         
 <?php
 //exportXML('exemel.xml', 1);
-importXML('a');
+//importXML('exemel.xml');
 
 
 function exportXML(string $a,int $b)
