@@ -8,13 +8,14 @@ class newBase
     /**
      * @param string $name
      */
-    function __construct(int $name = 0)
+    function __construct(string $name = '')
     {
         if (empty($name)) {
             while (array_search(self::$count, self::$arSetName) != false) {
                 ++self::$count;
             }
-            $name = self::$count;
+            //$name = self::$count;
+            $name='selfAssign';
         }
         $this->name = $name;
         self::$arSetName[] = $this->name;
@@ -52,7 +53,7 @@ class newBase
      */
     public function getSave(): string
     {
-        $value = serialize($value);
+        $value = serialize($this->value);
         return $this->name . ':' . sizeof($value) . ':' . $value;
     }
     /**
@@ -87,7 +88,7 @@ class newView extends newBase
     }
     private function setType()
     {
-        $this->type = gettype($this->value);
+        $this->type = _gettype($this->value);
     }
     private function setSize()
     {
@@ -165,7 +166,7 @@ class newView extends newBase
             ;
     }
 }
-function gettype($value): string
+function _gettype($value): string
 {
     if (is_object($value)) {
         $type = get_class($value);
@@ -173,7 +174,7 @@ function gettype($value): string
             if (strpos($type, "Test3\newBase") !== false) {
                 return 'test';
             }
-        } while ($type = get_parent_class($type));
+        } while ($type == get_parent_class($type));
     }
     return gettype($value);
 }
@@ -192,4 +193,6 @@ $save = $obj2->getSave();
 $obj3 = newView::load($save);
 
 var_dump($obj2->getSave() == $obj3->getSave());
+
+
 
