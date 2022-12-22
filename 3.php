@@ -92,7 +92,7 @@ class newView extends newBase
     }
     private function setSize()
     {
-        if (is_subclass_of($this->value, "Test3\newView")) {
+        if (is_subclass_of($this->value, "Test3\newBase")) {
             $this->size = parent::getSize() + 1 + strlen($this->property);
         } elseif ($this->type == 'test') {
             $this->size = parent::getSize();
@@ -170,11 +170,14 @@ function _gettype($value): string
 {
     if (is_object($value)) {
         $type = get_class($value);
+        //return $type;
         do {
+            $b=strpos($type, "Test3\newBase");
+            $c=get_parent_class($type);
             if (strpos($type, "Test3\newBase") !== false) {
                 return 'test';
             }
-        } while ($type == get_parent_class($type));
+        } while ($type = get_parent_class($type));
     }
     return gettype($value);
 }
