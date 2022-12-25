@@ -36,6 +36,7 @@ class newBase
     public function setValue($value)
     {
         $this->value = $value;
+        return $this;
     }
     /**
      * @return string
@@ -159,12 +160,18 @@ class newView extends newBase
     static public function load(string $value): newBase
     {
         $arValue = explode(':', $value);
-        return (new newBase($arValue[0]))
-            ->setValue(unserialize(substr($value, strlen($arValue[0]) + 1
-                + strlen($arValue[1]) + 1), $arValue[1]))
-            ->setProperty(unserialize(substr($value, strlen($arValue[0]) + 1
-                + strlen($arValue[1]) + 1 + $arValue[1])))
-            ;
+        $c=new newView($arValue[0]);
+        $c->setValue(unserialize(substr($value, strlen($arValue[0]) + 1
+                + strlen($arValue[1]) + 1)));
+        $c=$c->setProperty(unserialize(substr($value, strlen($arValue[0]) + 1
+                + strlen($arValue[1]) + 1 + $arValue[1])));
+//        return (new newView($arValue[0]))
+//            ->setValue(unserialize(substr($value, strlen($arValue[0]) + 1
+//                + strlen($arValue[1]) + 1)))
+//            ->setProperty(unserialize(substr($value, strlen($arValue[0]) + 1
+//                + strlen($arValue[1]) + 1 + $arValue[1])))
+//            ;
+        return $c;
     }
 }
 function _gettype($value): string
