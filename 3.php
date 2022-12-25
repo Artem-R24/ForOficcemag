@@ -1,5 +1,6 @@
 <?php
 namespace Test3;
+use Exception;
 
 class newBase
 {
@@ -54,7 +55,7 @@ class newBase
     public function getSave(): string
     {
         $value = serialize($this->value);
-        return $this->name . ':' . sizeof($value) . ':' . $value;
+        return $this->name . ':' . strlen($value) . ':' . $value;
     }
     /**
      * @return newBase
@@ -92,7 +93,7 @@ class newView extends newBase
     }
     private function setSize()
     {
-        if (is_subclass_of($this->value, "Test3\newBase")) {
+        if (is_subclass_of($this->value, "Test3\\newBase")) {
             $this->size = parent::getSize() + 1 + strlen($this->property);
         } elseif ($this->type == 'test') {
             $this->size = parent::getSize();
@@ -172,9 +173,7 @@ function _gettype($value): string
         $type = get_class($value);
         //return $type;
         do {
-            $b=strpos($type, "Test3\newBase");
-            $c=get_parent_class($type);
-            if (strpos($type, "Test3\newBase") !== false) {
+            if (strpos($type, "Test3\\newBase") !== false) {
                 return 'test';
             }
         } while ($type = get_parent_class($type));
