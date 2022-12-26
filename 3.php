@@ -149,9 +149,9 @@ class newView extends newBase
      */
     public function getSave(): string
     {
-        if ($this->type == 'test') {
-            $this->value = $this->value->getSave();
-        }
+//        if ($this->type == 'test') {
+//            $this->value = $this->value->getSave();
+//        }
         return parent::getSave() . serialize($this->property);
     }
     /**
