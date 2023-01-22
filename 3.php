@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace Test3;
 use Exception;
 
@@ -21,7 +22,7 @@ class newBase
         $this->name = $name;
         self::$arSetName[] = $this->name;
     }
-    private $name;
+    protected $name;
     /**
      * @return string
      */
@@ -44,7 +45,7 @@ class newBase
     public function getSize()
     {
         $size = strlen(serialize($this->value));
-        return strlen($size) + $size;
+        return $size;
     }
     public function __sleep()
     {
@@ -191,6 +192,7 @@ function _gettype($value): string
 
 $obj = new newBase('12345');
 $obj->setValue('text');
+
 
 $obj2 = new \Test3\newView('O9876');
 $obj2->setValue($obj);
